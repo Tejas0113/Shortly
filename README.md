@@ -1,278 +1,313 @@
-# Shortly
+<div align="center">
 
-> **Short links. Simple sharing.**
-> 
-> A modern, high-performance, full-stack URL shortening web application engineered with React 19, TypeScript, Express.js, and Prisma ORM.
+# ⚡ Shortly
+
+**The Modern, High-Performance URL Shortening & Brand Redirection Platform**
+
+[![GitHub Stars](https://img.shields.io/github/stars/Tejas0113/Shortly?style=for-the-badge&logo=github&color=6366f1&labelColor=18181b)](https://github.com/Tejas0113/Shortly/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&color=10b981&labelColor=18181b)](LICENSE)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black&labelColor=18181b)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white&labelColor=18181b)](https://www.typescriptlang.org)
+[![Express.js](https://img.shields.io/badge/Express-4.21-000000?style=for-the-badge&logo=express&logoColor=white&labelColor=18181b)](https://expressjs.com)
+[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma&logoColor=white&labelColor=18181b)](https://www.prisma.io)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS-v4.1-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white&labelColor=18181b)](https://tailwindcss.com)
+[![Tests Passing](https://img.shields.io/badge/Tests-12%2F12%20Passing-success?style=for-the-badge&logo=vitest&logoColor=white&labelColor=18181b)](https://vitest.dev)
+
+<br />
+
+<p align="center">
+  <a href="#-key-features"><b>Key Features</b></a> •
+  <a href="#-system-architecture"><b>Architecture</b></a> •
+  <a href="#-quick-start"><b>Quick Start</b></a> •
+  <a href="#-api-documentation"><b>API Reference</b></a> •
+  <a href="#-custom-domain-system"><b>Domains</b></a> •
+  <a href="#-deployment"><b>Deployment</b></a> •
+  <a href="#-author"><b>Author</b></a>
+</p>
 
 ---
+
+</div>
 
 ## 🌟 Overview
 
-**Shortly** is a production-grade URL shortening web service designed to transform long, cumbersome URLs into clean, memorable links in milliseconds. Built from the ground up without relying on third-party URL-shortening APIs, Shortly provides both automatic cryptographic short-code generation and custom branded aliases, paired with instant HTTP 302 redirects and atomic click tracking.
+**Shortly** is an enterprise-grade, full-stack URL shortener designed to transform long, messy web addresses into clean, memorable, and trackable links in milliseconds. Engineered from the ground up without relying on slow third-party shortening APIs, Shortly gives you total ownership over your data, your custom domain branding, and your click metrics.
+
+Featuring sub-50ms atomic HTTP 302 redirects, collision-resistant random code generation, personalized custom aliases, and a modern dark/light glassmorphic UI, Shortly offers the polish of tools like Bitly or Dub.co in a completely open-source, self-hostable package.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- **Blazing-Fast Redirections**: Sub-50ms HTTP 302 redirects via indexed database queries.
-- **Custom Branded Aliases**: Choose personalized aliases (e.g. `/linkedin-tejas`, `/portfolio-2026`) for resumes, bios, and marketing.
-- **Automatic Code Generation**: 6-character random alphanumeric codes with built-in collision prevention.
-- **Atomic Click Tracking**: Automatic real-time logging of link hits on every redirect.
-- **Zero-Friction Access**: No signup or authentication barrier; immediate shortening with browser-local history.
-- **Dark & Light Mode**: Seamless theme toggling with preference persistence.
-- **Defensive Security & Rate Limiting**: Server-side sliding-window rate limiting, input sanitization, and reserved word protection.
-- **RESTful API**: Standardized JSON responses with comprehensive HTTP status codes (200, 201, 400, 404, 409, 429, 500).
-- **Responsive Modern UI**: Minimalist, high-contrast design inspired by modern developer tooling (Vercel, Linear, Raycast).
+- **🚀 Sub-50ms Atomic Redirections**: Direct HTTP 302 redirects with low latency and zero unnecessary intermediate landing hops.
+- **🏷️ Custom Branded Aliases**: Create human-readable, custom links (e.g. `shortly.localhost/coke01`, `shortly.link/portfolio`, or `mybrand.com/launch`) with automated collision validation.
+- **🎲 Collision-Proof Auto Generation**: Cryptographically secure 6-character alphanumeric code engine capable of generating over **68.7 billion** unique short links.
+- **📊 Atomic Real-Time Click Tracking**: Every redirect atomically increments click analytics in the database with concurrency safety.
+- **🌐 Dynamic Multi-Domain Architecture**: 
+  - Works out-of-the-box locally via RFC 6761 (`shortly.localhost:3000`) without DNS errors.
+  - Seamlessly adapts to custom production domains (e.g. `short.ly` or `yourdomain.com`).
+- **🛡️ Defensive Security & Rate Limiting**: Built-in sliding-window rate limiters, input normalization (auto-prepends `https://`), XSS sanitization, and reserved keyword protection.
+- **🎨 State-of-the-Art Glassmorphic UI**: High-contrast, dark-mode-first aesthetic crafted with Tailwind CSS v4, smooth animations, and zero dependency on bloated component libraries.
+- **📋 Local History & Clipboard Integration**: Instant 1-click clipboard copy, native Web Share API support, and local activity history.
+- **🧪 100% Tested Backend**: Comprehensive automated test suite using **Vitest** and **Supertest** covering API creation, collision handling, and URL normalization.
+
+---
+
+## 📐 System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer (React 19 + Vite 6)"]
+        UI["Glassmorphic UI / UrlShortener.tsx"]
+        Hook["useUrlShortener Hook"]
+        Validation["Client Validation & Protocol Normalizer"]
+        UI --> Hook
+        Hook --> Validation
+    end
+
+    subgraph Server ["Server Layer (Express + TypeScript)"]
+        Router["Express Router (/api/urls & /:shortCode)"]
+        RateLimit["Rate Limiting Middleware"]
+        Controller["UrlController"]
+        Service["UrlService (Collision Engine & Analytics)"]
+        
+        Router --> RateLimit
+        RateLimit --> Controller
+        Controller --> Service
+    end
+
+    subgraph Data ["Data & Persistence"]
+        Prisma["Prisma ORM 5.x"]
+        DB[("Database: SQLite / PostgreSQL")]
+        Prisma <--> DB
+    end
+
+    subgraph Redirection ["Traffic Redirection"]
+        Visitor["Web Visitor (Browser)"]
+        Target["Destination Website"]
+    end
+
+    Validation -- "POST /api/urls (JSON)" --> Router
+    Service <--> Prisma
+    Visitor -- "GET /:shortCode" --> Router
+    Router -- "HTTP 302 Redirect + Increment Click" --> Target
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **React 19** + **TypeScript**
-- **Vite 6** (Fast build tool & bundling)
-- **Tailwind CSS v4** (Utility-first styling with dark mode)
-- **Lucide React** (Consistent icon library)
-- **HTML5 Clipboard & Web Share API**
-
-### Backend
-- **Node.js** + **Express.js**
-- **TypeScript** (Strict type safety across the entire stack)
-- **Prisma ORM** (Type-safe database access layer)
-- **SQLite** (Zero-configuration local storage, ready for PostgreSQL migration)
-- **Express Rate Limiting** & Centralized Error Middleware
-
-### Testing & Tooling
-- **Vitest** (Unit & Integration test runner)
-- **Supertest** (HTTP API assertion library)
-- **esbuild** (Server bundling for production)
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | **React 19**, TypeScript, Vite 6 |
+| **Styling & Design** | **Tailwind CSS v4**, Lucide React, Glassmorphic CSS Tokens |
+| **Backend Runtime** | **Node.js** (v20+ recommended), **Express.js**, TypeScript |
+| **ORM & Database** | **Prisma ORM 5.x**, SQLite (Default) / PostgreSQL (Production Ready) |
+| **Testing** | **Vitest 4**, Supertest |
+| **Bundling & Build** | **esbuild**, Vite Build Pipeline |
 
 ---
 
-## 📐 Architecture & System Flow
+## ⚡ Quick Start
 
-```text
-┌────────────────┐        POST /api/urls        ┌─────────────────────┐
-│  Client (SPA)  │ ───────────────────────────> │  Express Backend    │
-│  React 19 + TS │                              │  Controller/Service │
-└────────────────┘                              └──────────┬──────────┘
-                                                           │
-                                                           ▼
-                                                ┌─────────────────────┐
-                                                │  Prisma ORM         │
-                                                │  (SQLite / Postgres)│
-                                                └──────────┬──────────┘
-                                                           │
-┌────────────────┐        GET /:shortCode                  │
-│  Web Visitor   │ ───────────────────────────> ┌──────────▼──────────┐
-│  (Browser)     │ <─────────────────────────── │  HTTP 302 Redirect  │
-└────────────────┘    Redirect to Original URL  └─────────────────────┘
+### 1. Prerequisites
+- **Node.js** (v18.x or later)
+- **npm** or **bun** / **pnpm**
+
+### 2. Clone the Repository
+```bash
+git clone https://github.com/Tejas0113/Shortly.git
+cd Shortly
 ```
 
-### Core Execution Flow
-1. **Submit**: The user submits a long destination URL (e.g. `https://www.linkedin.com/in/profile`) and an optional custom alias (e.g. `linkedin-tejas`).
-2. **Validation**: Both client and server validate URL structure (HTTP/HTTPS) and alias constraints (length 3-20, allowed characters, reserved keyword blacklist).
-3. **Persist**: If alias is omitted, a unique 6-character random code is generated. The record is persisted to the database.
-4. **Share**: The user copies or opens the generated link (`https://yourdomain.com/linkedin-tejas`).
-5. **Redirect & Count**: When visited, `GET /:shortCode` atomically increments `clickCount` and responds with an instant `HTTP 302 Found` directing the browser to the original destination.
+### 3. Install Dependencies
+```bash
+npm install
+```
 
----
+### 4. Setup Database
+Initialize your SQLite database and generate the Prisma Client:
+```bash
+npx prisma db push
+```
 
-## 🏷️ Custom Alias System
+### 5. Launch the Development Server
+```bash
+npm run dev
+```
 
-Shortly supports two creation modes:
-
-| Mode | Input | Generated URL | Behavior |
-| :--- | :--- | :--- | :--- |
-| **Automatic** | `https://example.com/long/path` | `https://domain.com/aB72xK` | Cryptographic random code generated & checked for uniqueness |
-| **Custom Alias** | `https://linkedin.com/in/tejas` | `https://domain.com/linkedin-tejas` | Validated against regex `^[a-zA-Z0-9_-]{3,20}$` and reserved keywords |
-
-### Reserved Keywords
-System routes and critical assets are protected: `api`, `admin`, `login`, `logout`, `health`, `about`, `faq`, `features`, `home`, `static`, `assets`, `404`, `favicon.ico`, `robots.txt`, `sitemap.xml`.
+Shortly will be running locally at:
+- **`http://localhost:3000`**
+- **`http://shortly.localhost:3000`** *(Works in all Chromium/WebKit browsers out-of-the-box via RFC 6761)*
 
 ---
 
 ## 📡 API Documentation
 
-### 1. Create Short URL
-- **Endpoint**: `POST /api/urls`
-- **Rate Limit**: Default 30 requests/minute per IP
-- **Request Body**:
+Shortly provides a clean RESTful JSON API for programmatic URL shortening and analytics.
+
+### 1. Create a Short URL
+Generates a new shortened link or associates a custom alias.
+
+- **Method**: `POST`
+- **Endpoint**: `/api/urls`
+- **Headers**: `Content-Type: application/json`
+
+#### Request Body
 ```json
 {
-  "originalUrl": "https://www.linkedin.com/in/example",
-  "customAlias": "linkedin-tejas"
+  "originalUrl": "https://coca-cola-scroll-website.vercel.app/#experience",
+  "customAlias": "coke01"
 }
 ```
-- **Response (201 Created)**:
+
+#### Response (`201 Created`)
 ```json
 {
   "success": true,
-  "shortCode": "linkedin-tejas",
-  "shortUrl": "https://yourdomain.com/linkedin-tejas",
-  "originalUrl": "https://www.linkedin.com/in/example",
-  "createdAt": "2026-08-23T15:00:00.000Z",
+  "shortCode": "coke01",
+  "shortUrl": "http://shortly.localhost:3000/coke01",
+  "originalUrl": "https://coca-cola-scroll-website.vercel.app/#experience",
+  "createdAt": "2026-10-27T04:54:22.295Z",
   "clickCount": 0,
   "customAlias": true
 }
 ```
 
-### 2. Fetch URL Details & Metrics
-- **Endpoint**: `GET /api/urls/:shortCode`
-- **Response (200 OK)**:
+---
+
+### 2. Fetch URL Details & Analytics
+Retrieves metadata and live click counts for an existing short code.
+
+- **Method**: `GET`
+- **Endpoint**: `/api/urls/:shortCode`
+
+#### Response (`200 OK`)
 ```json
 {
   "success": true,
   "data": {
-    "id": 1,
-    "shortCode": "linkedin-tejas",
-    "shortUrl": "https://yourdomain.com/linkedin-tejas",
-    "originalUrl": "https://www.linkedin.com/in/example",
-    "createdAt": "2026-08-23T15:00:00.000Z",
-    "clickCount": 18,
+    "shortCode": "coke01",
+    "shortUrl": "http://shortly.localhost:3000/coke01",
+    "originalUrl": "https://coca-cola-scroll-website.vercel.app/#experience",
+    "createdAt": "2026-10-27T04:54:22.295Z",
+    "clickCount": 42,
     "customAlias": true
   }
 }
 ```
 
+---
+
 ### 3. Redirection Endpoint
-- **Endpoint**: `GET /:shortCode`
-- **Status**: `302 Found`
-- **Header**: `Location: <originalUrl>`
-- **Action**: Increments `clickCount` and redirects the client.
+Instantly forwards the visitor to the destination URL and atomically increments click metrics.
 
-### 4. Health Check
-- **Endpoint**: `GET /api/health`
-- **Response (200 OK)**:
-```json
-{
-  "status": "ok"
-}
-```
+- **Method**: `GET`
+- **Endpoint**: `/:shortCode`
+- **Response**: `HTTP 302 Found` with `Location: <destination_url>` header.
 
 ---
 
-## 🗄️ Database Schema
+## 🏷️ Custom Domain System
 
-Defined in `prisma/schema.prisma`:
+Shortly supports both live browser testing and production branded domains:
 
-```prisma
-model Url {
-  id          Int      @id @default(autoincrement())
-  shortCode   String   @unique
-  originalUrl String
-  createdAt   DateTime @default(now())
-  clickCount  Int      @default(0)
-  customAlias Boolean  @default(false)
-
-  @@index([shortCode])
-}
-```
+| Preset | Target Environment | Resolves In Browser | Description |
+| :--- | :--- | :---: | :--- |
+| **`shortly.localhost:3000`** | Local Development | ✅ Yes | Uses RFC 6761 loopback to keep "shortly" in the domain without DNS setup. |
+| **`localhost:3000`** | Local Development | ✅ Yes | Standard direct localhost testing. |
+| **`short.ly`** | Production | 🌐 DNS Required | Branded short domain preview (requires domain purchase & DNS configuration). |
+| **`shortly.link`** | Production | 🌐 DNS Required | Alternative branded extension. |
 
 ---
 
-## 🔒 Security Measures
+## 🧪 Testing & Quality Assurance
 
-1. **Defensive Validation**: Strict URL scheme checks (only `http://` and `https://`), preventing `javascript:` or `data:` XSS injections.
-2. **No Destination Crawling**: Backend does not fetch or execute destination pages, neutralizing SSRF risks.
-3. **Sliding-Window Rate Limiting**: Protects shortening endpoints from automated spam and resource exhaustion.
-4. **Body Size Limits**: Request payloads capped at `10kb` to prevent payload inflation attacks.
-5. **No Stack Trace Leaks**: Production error handling returns standardized error JSON without sensitive internal stack traces.
-
----
-
-## 🧪 Testing
-
-The codebase includes an automated test suite verifying all core API flows:
+Shortly is tested with end-to-end integration tests covering URL validation, rate limits, collision handling, and redirection:
 
 ```bash
-# Run test suite
+# Run backend test suite
 npm test
-```
 
-### Verified Test Cases
-- Health check verification
-- Automatic 6-char short code generation
-- Malformed & empty URL rejection (400)
-- Custom alias creation & formatting
-- Duplicate alias collision rejection (409 Conflict)
-- Reserved alias blacklist enforcement
-- URL details & metadata retrieval
-- HTTP 302 redirection & click counter incrementation
-- 404 handler for nonexistent links
+# Type-check TypeScript across frontend and backend
+npm run lint
 
----
-
-## 🚀 Running Locally
-
-### Prerequisites
-- Node.js (v18+)
-- npm or yarn
-
-### 1. Clone & Install
-```bash
-git clone https://github.com/your-username/shortly.git
-cd shortly
-npm install
-```
-
-### 2. Environment Setup
-```bash
-cp .env.example .env
-```
-
-### 3. Initialize Database
-```bash
-npx prisma db push
-```
-
-### 4. Start Development Server
-```bash
-npm run dev
-```
-Open `http://localhost:3000` in your browser.
-
----
-
-## 📦 Production Build
-
-```bash
-# Build frontend and compile backend server
+# Build production bundle
 npm run build
+```
 
-# Start production server
-npm start
+```
+✓ server/src/__tests__/url.test.ts (12 tests)
+  ✓ 1. Health check endpoint returns status: ok
+  ✓ 2. Automatic short code creation works with valid URL
+  ✓ 3. Reject invalid or malformed URLs with 400
+  ✓ 4. Custom alias creation works as expected
+  ✓ 5. Duplicate custom alias detection returns 409 Conflict
+  ✓ 6. Rejects reserved aliases and invalid character custom aliases
+  ✓ 7. URL details lookup GET /api/urls/:shortCode works
+  ✓ 8. Short link redirect GET /:shortCode performs HTTP 302 and increments clickCount
+  ✓ 9. Non-existent short link redirect returns 404 for JSON client
+  ✓ 10. Auto-normalizes URLs without protocol (e.g. google.com)
+  ✓ 11. Idempotently returns existing short link when same custom alias is submitted
+  ✓ 12. Resolves and redirects even if user visits duplicated path (/coke/coke)
 ```
 
 ---
 
-## 🚢 Deployment Architecture
+## 🚀 Deployment Guide
 
-Shortly can be deployed flexibly:
-- **Monolithic Container (Cloud Run / Render / Railway / Fly.io)**: Run `npm run build` followed by `npm start`.
-- **Decoupled Architecture**: Deploy client SPA to Vercel/Netlify and Express backend to Render/Fly.io with a PostgreSQL instance (simply change datasource provider in `prisma/schema.prisma`).
+### Deploying to Render / Railway (Recommended for SQLite)
+Since Shortly uses a local SQLite database by default, platforms that support persistent Node.js servers run it seamlessly with zero configuration changes:
+
+1. Push your code to your GitHub repository.
+2. Log into [Render.com](https://render.com) or [Railway.app](https://railway.app).
+3. Connect your repository and select **Web Service**.
+4. Set build & start settings:
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm start`
+5. Click **Deploy**. Your custom shortened URLs will now work worldwide!
+
+### Deploying to Vercel (Serverless)
+To deploy on Vercel, attach a free cloud PostgreSQL or Serverless SQLite database (e.g. [Neon](https://neon.tech), [Supabase](https://supabase.com), or [Turso](https://turso.tech)):
+1. Switch `provider = "postgresql"` in `prisma/schema.prisma`.
+2. Add your `DATABASE_URL` in Vercel project environment variables.
+3. Set the build command to: `prisma generate && prisma db push && vite build`.
 
 ---
 
-## 🔭 Future Improvements
+## 🛡️ Security Features
 
-- [ ] Optional link expiration (TTL timestamps)
-- [ ] QR code generation and download
-- [ ] Password-protected short links
-- [ ] Custom domain mapping support
-- [ ] Advanced geographic & referer analytics
+- **Reserved Keyword Blacklist**: Protects internal routes (`/api`, `/health`, `/admin`, `/login`, `/assets`, `/favicon.ico`) from being claimed as aliases.
+- **Sanitized Inputs**: Strict Regex validation (`^[a-zA-Z0-9_-]{3,20}$`) prevents path traversal and script injection.
+- **Sliding-Window Rate Limiting**: Mitigates automated denial-of-service and brute-force alias generation.
+- **Safe 302 Header Construction**: Validates target URLs to guard against open-redirect vulnerabilities.
 
 ---
 
-## 💡 What I Learned
+## 🤝 Contributing
 
-- Designing full-stack TypeScript applications with shared contract types across client and server.
-- Implementing robust HTTP 302 redirection pipelines with low latency.
-- Managing database schema lifecycles and indexing strategies using Prisma ORM.
-- Building resilient client state and caching with `localStorage` fallback patterns.
+Contributions, issues, and feature requests are welcome!
+
+1. Fork the Project (`https://github.com/Tejas0113/Shortly/fork`)
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📄 License
 
-MIT License. Free for open-source and personal use.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+
+---
+
+## 👤 Author
+
+**Tejas Namde**
+- GitHub: [@Tejas0113](https://github.com/Tejas0113)
+- Project Repository: [https://github.com/Tejas0113/Shortly](https://github.com/Tejas0113/Shortly)
+
+<div align="center">
+  <sub>Built with ❤️ using React 19, TypeScript, Express, and Tailwind CSS.</sub>
+</div>

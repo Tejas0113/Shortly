@@ -37,8 +37,8 @@ export function UrlResult({
   // Formatted short URL for sharing/display
   const shortDisplayUrl = formatShortUrl(result.shortCode, selectedDomain, result.shortUrl);
   
-  // Guaranteed live working link that resolves locally and keeps "shortly" in domain name
-  const liveDirectUrl = formatShortUrl(result.shortCode, "shortly.localhost", result.shortUrl);
+  // Guaranteed live working link on this server / domain (works on Vercel and local)
+  const liveDirectUrl = formatShortUrl(result.shortCode, "auto", result.shortUrl);
 
   const isMock = !isLiveDomain(selectedDomain);
 
@@ -303,25 +303,25 @@ export function UrlResult({
                 </p>
                 <p className="text-amber-200/80 mt-0.5 leading-relaxed">
                   <span className="font-mono text-white">{selectedDomain}</span> is a mock domain. In local development, your browser cannot resolve unowned domains without public DNS.
-                  Use the <strong>Live Link</strong> below (<span className="font-mono text-emerald-300">shortly.localhost:3000</span>) to test directly in your browser.
+                  Use the <strong>Live Link</strong> below (<span className="font-mono text-emerald-300">{liveDirectUrl}</span>) to test directly in your browser.
                 </p>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => setSelectedDomain("shortly.localhost")}
+              onClick={() => setSelectedDomain("auto")}
               className="shrink-0 px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-colors"
             >
-              Use shortly.localhost
+              Use Live Domain
             </button>
           </div>
         )}
 
-        {/* Live Redirection Route with 'shortly' in host */}
+        {/* Live Redirection Route with host */}
         <div className="mb-5 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 relative z-10">
           <div className="text-zinc-400 flex items-center gap-1.5 truncate">
-            <span className="font-semibold text-zinc-300 shrink-0">Live working link (with Shortly):</span>
+            <span className="font-semibold text-zinc-300 shrink-0">Live working link:</span>
             <span className="font-mono text-indigo-300 truncate" title={liveDirectUrl}>
               {liveDirectUrl}
             </span>

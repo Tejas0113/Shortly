@@ -13,10 +13,12 @@ import { useUrlShortener } from "./hooks/useUrlShortener.js";
 import { getInitialTheme, saveThemePreference } from "./utils/storage.js";
 import { Theme } from "./types.js";
 
+import { getDefaultDomain } from "./utils/domains.js";
+
 export default function App() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [is404Route, setIs404Route] = useState(false);
-  const [selectedDomain, setSelectedDomain] = useState<string>("shortly.localhost");
+  const [selectedDomain, setSelectedDomain] = useState<string>(getDefaultDomain());
 
   const {
     originalUrl,

@@ -96,7 +96,6 @@ export function UrlResult({
       try {
         await navigator.share({
           title: "Shortly Short Link",
-          text: `Check out this short link: ${shareTarget}`,
           url: shareTarget,
         });
       } catch {

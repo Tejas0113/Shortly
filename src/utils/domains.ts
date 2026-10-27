@@ -67,11 +67,8 @@ export function formatShortUrl(
   const cleanCode = (shortCode || "").trim().replace(/^\/+/, "");
 
   if (domainSetting === "shortly.localhost") {
-    let portPart = ":3000";
-    if (typeof window !== "undefined") {
-      portPart = window.location.port ? `:${window.location.port}` : "";
-    }
-    return `http://shortly.localhost${portPart}/${cleanCode}`;
+    const port = typeof window !== "undefined" && window.location.port ? window.location.port : "3000";
+    return `http://shortly.localhost:${port}/${cleanCode}`;
   }
 
   if (domainSetting === "auto" || domainSetting === "live") {
@@ -96,11 +93,8 @@ export function formatShortUrl(
 
 export function getShortDomainLabel(domainSetting: string): string {
   if (domainSetting === "shortly.localhost") {
-    let portPart = ":3000";
-    if (typeof window !== "undefined") {
-      portPart = window.location.port ? `:${window.location.port}` : "";
-    }
-    return `shortly.localhost${portPart}`;
+    const port = typeof window !== "undefined" && window.location.port ? window.location.port : "3000";
+    return `shortly.localhost:${port}`;
   }
   if (domainSetting === "auto" || domainSetting === "live") {
     if (typeof window !== "undefined") {

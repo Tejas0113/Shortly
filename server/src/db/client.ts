@@ -29,6 +29,10 @@ if (process.env.NODE_ENV !== "production") {
  * Ensures the SQLite database schema and tables exist automatically on startup
  */
 export async function initDatabase(): Promise<void> {
+  // If running against PostgreSQL / cloud DB, schema is managed via prisma db push
+  if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith("file:")) {
+    return;
+  }
   try {
     await prisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "Url" (
